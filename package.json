@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "description": "A script to bundle codebase files for sharing with Grok AI",
   "main": "cbfg.js",
+  "bin": {
+    "cbfg": "./cbfg.js"
+  },
   "type": "module",
   "scripts": {
     "prepublishOnly": "npm run lint",
     "lint": "eslint .",
     "format": "prettier --write .",
     "prepare": "husky install",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "lint-staged": {
     "*.js": [
@@ -21,7 +25,8 @@
     "grok",
     "codebase",
     "bundler",
-    "javascript"
+    "javascript",
+    "cli"
   ],
   "author": "Gytis Tamulynas",
   "license": "MIT",

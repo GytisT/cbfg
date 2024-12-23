@@ -1,19 +1,27 @@
 # Codebase Bundler for Grok (CBFG)
 
-A script to bundle codebase files from a directory into bundle(s) to share with Grok 2 AI.
+A CLI tool designed specifically for bundling codebase files to share with Grok AI, enhancing readability with markdown formatting.
 
 **Disclaimer:** "Codebase Bundler for Grok" is not officially affiliated with or endorsed by xAI, the creators of Grok AI. This project is an open-source tool designed to work with Grok AI but is independently developed and maintained.
 
 ## Purpose
 
-This script is designed to consolidate all files from a specified directory into one or more text files. This bundling process is useful for sharing entire codebases with Grok 2 AI for analysis or interaction.
+This script consolidates all files from a specified directory into text files formatted for Grok AI, wrapping each file in markdown code blocks for improved readability and analysis.
+
+## Installation
+
+To install CBFG globally via npm, run:
+
+```
+npm install -g cbfg
+```
 
 ## Usage
 
-To use this script, run:
+After global installation, you can use CBFG by running:
 
 ```
-node cbfg.js <directoryToScan> [ignoredItems...]
+cbfg <directoryToScan> [ignoredItems...]
 ```
 
 - `<directoryToScan>`: The directory path you want to bundle. It can be relative or absolute.
@@ -26,37 +34,34 @@ node cbfg.js <directoryToScan> [ignoredItems...]
 To bundle all files in `myProject` except those in `node_modules` and `config.json`:
 
 ```
-node cbfg.js ./myProject node_modules/ config.json
+cbfg ./myProject node_modules/ config.json
 ```
 
 ## Features
 
-- **Character Cap & Multiple Bundles**: This script intelligently creates new bundles if necessary to respect Grok's input limits, ensuring no single bundle exceeds 100,000 characters. This is crucial for maintaining system performance and usability when interacting with Grok AI.
-- **Ignore Specific Items**: You can specify directories or files to skip during bundling.
-- **File Size Limit**: Skips files larger than 100 KB to avoid processing overly large files.
+- **Respects Grok's Limits**: Creates multiple bundles if needed, capping at 100,000 characters per bundle.
+- **Selective Bundling**: Skip specific directories or files.
+- **File Size Cap**: Ignores files over 100 KB.
+- **Markdown Formatting**: Enhances readability by wrapping file contents in markdown code blocks.
 
 ## Output
 
-- Bundled files are generated in the directory where the script is run, named `bundled_codebase_1.txt`, `bundled_codebase_2.txt`, etc.
-- Each file contains the content of multiple original files, respecting size and character limits.
+- Bundled files are named `bundled_codebase_1.txt`, etc., in the current directory, with each file's content in markdown blocks.
 
 ## Using the Output
 
-After the bundle files are generated:
-1. **Inform Grok** that you will be posting an entire codebase and that Grok should only respond in full when you say you are finished with the code share.
-2. **Manually copy and paste** each bundle's content into the prompt of Grok AI for analysis and interaction.
+After generating:
+1. **Inform Grok** you'll share a codebase and expect a response only after you've finished.
+2. **Paste each bundle** into Grok AI's input for analysis.
 
-**Remember:** It's your responsibility to stay within sensible boundaries and not to abuse Grok's prompt system by posting excessively large amounts of code at once or in too many parts.
+**Remember:** Use responsibly to avoid overloading Grok's system.
 
 ## Notes
 
-- Ensure you have Node.js 14.x or higher installed to run this script.
-- Be cautious with large directories as processing might take some time.
-- This script does not split files across bundles; each file is included in its entirety in one bundle.
-
-## Important Note
-
-- This content is partially AI-generated.
+- Requires Node.js 14.x or higher.
+- Processing large directories might take time.
+- Files are not split across bundles.
+- **Development Insight:** This project leverages AI assistance in its development for enhanced efficiency and innovation.
 
 ## License
 

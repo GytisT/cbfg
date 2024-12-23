@@ -1,4 +1,4 @@
-// File: cbfg.js
+#!/usr/bin/env node
 /**
  * @fileoverview Codebase Bundler for Grok. A script to bundle codebase files from a directory into bundle(s) to share with Grok 2 AI.
  * Note: This content is partially AI-generated.
@@ -51,6 +51,24 @@ function confirmAction(message) {
 }
 
 /**
+ * Adds a file path comment.
+ * @param {string} filePath - The path of the file.
+ * @returns {string} The file path comment.
+ */
+function addFilePathComment(filePath) {
+    return `// File: ${filePath}\n`;
+}
+
+/**
+ * Wraps content with markdown code block formatting.
+ * @param {string} content - The content to wrap.
+ * @returns {string} The content wrapped in markdown code block.
+ */
+function wrapWithMarkdown(content) {
+    return `\`\`\`\n${content}\n\`\`\`\n`;
+}
+
+/**
  * Recursively reads files in a directory, ignoring specified directories and files.
  * @param {string} dir - The directory to scan.
  * @param {Array<string>} [ignored=[]] - Items to ignore.
@@ -86,8 +104,7 @@ async function readFiles(dir, ignored = [], fileCount = 0) {
             ) {
                 try {
                     const content = await readFile(filePath, 'utf-8');
-                    const fileData = `// File: ${filePath}\n${content}\n\n`;
-                    await addToBundle(fileData);
+                    await addToBundle(filePath, content); // Pass filePath and content separately
                     fileCount++;
                     if (fileCount % LOG_EVERY_N_FILES === 0)
                         colorLog(
@@ -121,18 +138,23 @@ async function readFiles(dir, ignored = [], fileCount = 0) {
 
 /**
  * Manages adding a file to the current bundle or starting a new one if necessary.
- * @param {string} fileData - The content of the file to add.
+ * @param {string} filePath - The path of the file being added.
+ * @param {string} content - The content of the file to add.
  */
-async function addToBundle(fileData) {
+async function addToBundle(filePath, content) {
     addToBundle.currentBundle ??= [];
     addToBundle.currentChars ??= 0;
-    const fileChars = fileData.length;
+
+    const commentedContent =
+        addFilePathComment(filePath) + wrapWithMarkdown(content);
+
+    const fileChars = commentedContent.length;
     if (addToBundle.currentChars + fileChars > HARD_TOTAL_CHAR_LIMIT) {
         await writeBundle(addToBundle.currentBundle);
-        addToBundle.currentBundle = [fileData];
+        addToBundle.currentBundle = [commentedContent];
         addToBundle.currentChars = fileChars;
     } else {
-        addToBundle.currentBundle.push(fileData);
+        addToBundle.currentBundle.push(commentedContent);
         addToBundle.currentChars += fileChars;
     }
 }
@@ -188,30 +210,32 @@ async function processDirectory(directoryPath, ignored = []) {
     );
 }
 
-// Main execution block for the script
-if (import.meta.url.startsWith('file:')) {
-    (async () => {
-        const args = process.argv.slice(2);
-        if (args.length < 1) {
-            colorLog(
-                'Usage: node cbfg.js <directoryToScan> [ignoredItems...]',
-                colors.yellow,
-            );
-            process.exit(1);
-        }
+async function main() {
+    const args = process.argv.slice(2);
+    if (args.length < 1) {
+        colorLog(
+            'Usage: cbfg <directoryToScan> [ignoredItems...]',
+            colors.yellow,
+        );
+        process.exit(1);
+    }
 
-        const directoryToScan = args[0];
-        const ignored = args.slice(1);
+    const directoryToScan = args[0];
+    const ignored = args.slice(1);
 
-        try {
-            await access(directoryToScan);
-            await processDirectory(directoryToScan, ignored);
-        } catch {
-            colorLog(
-                `The specified directory ${directoryToScan} does not exist or cannot be accessed.`,
-                colors.red,
-            );
-            process.exit(1);
-        }
-    })();
+    try {
+        await access(directoryToScan);
+        await processDirectory(directoryToScan, ignored);
+    } catch {
+        colorLog(
+            `The specified directory ${directoryToScan} does not exist or cannot be accessed.`,
+            colors.red,
+        );
+        process.exit(1);
+    }
 }
+
+main().catch((err) => {
+    colorLog(`An unexpected error occurred: ${err.message}`, colors.red);
+    process.exit(1);
+});
