@@ -1,5 +1,7 @@
 # Codebase Bundler for Grok (CBFG)
 
+[![NPM](https://img.shields.io/npm/v/cbfg.svg)](https://www.npmjs.com/package/cbfg)
+
 A CLI tool designed specifically for bundling codebase files to share with Grok AI, enhancing readability with markdown formatting.
 
 **Disclaimer:** "Codebase Bundler for Grok" is not officially affiliated with or endorsed by xAI, the creators of Grok AI. This project is an open-source tool designed to work with Grok AI but is independently developed and maintained.
