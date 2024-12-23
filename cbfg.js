@@ -24,7 +24,7 @@ const colorLog = (message, color = colors.reset) =>
     console.log(`${color}${message}${colors.reset}`);
 
 const MAX_FILE_SIZE = 100 * 1024; // 100 KB per file limit
-const HARD_TOTAL_CHAR_LIMIT = 100000; // Hard limit for total characters
+const HARD_TOTAL_CHAR_LIMIT = 30000; // Hard limit for total characters
 const LOG_EVERY_N_FILES = 100; // Log progress every 100 files
 let bundleCount = 0;
 let totalCharacters = 0;

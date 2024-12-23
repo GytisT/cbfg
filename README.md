@@ -39,7 +39,7 @@ cbfg ./myProject node_modules/ config.json
 
 ## Features
 
-- **Respects Grok's Limits**: Creates multiple bundles if needed, capping at 100,000 characters per bundle.
+- **Respects Grok's Limits**: Creates multiple bundles if needed, capping at 30,000 characters per bundle.
 - **Selective Bundling**: Skip specific directories or files.
 - **File Size Cap**: Ignores files over 100 KB.
 - **Markdown Formatting**: Enhances readability by wrapping file contents in markdown code blocks.
