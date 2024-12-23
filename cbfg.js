@@ -1,11 +1,12 @@
+// File: cbfg.js
 /**
  * @fileoverview Codebase Bundler for Grok. A script to bundle codebase files from a directory into bundle(s) to share with Grok 2 AI.
  * Note: This content is partially AI-generated.
  */
 
-const fs = require('fs').promises;
-const path = require('path');
-const readline = require('readline');
+import { readFile, readdir, stat, writeFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
+import { createInterface } from 'node:readline';
 
 // ANSI Colors
 const colors = {
@@ -34,7 +35,7 @@ let totalCharacters = 0;
  * @returns {Promise<boolean>} A promise that resolves to true if the user confirms, false otherwise.
  */
 function confirmAction(message) {
-    const rl = readline.createInterface({
+    const rl = createInterface({
         input: process.stdin,
         output: process.stdout,
     });
@@ -52,39 +53,39 @@ function confirmAction(message) {
 /**
  * Recursively reads files in a directory, ignoring specified directories and files.
  * @param {string} dir - The directory to scan.
- * @param {Object} [options={}] - Options for ignoring directories and files.
- * @param {Array<string>} [options.ignoredDirs=[]] - Directories to ignore.
- * @param {Array<string>} [options.ignoredFiles=[]] - Files to ignore by name.
+ * @param {Array<string>} [ignored=[]] - Items to ignore.
  * @param {number} [fileCount=0] - Count of files successfully read.
  * @returns {Promise<number>} A promise resolving to the file count.
  */
-async function readFiles(
-    dir,
-    { ignoredDirs = [], ignoredFiles = [] } = {},
-    fileCount = 0,
-) {
+async function readFiles(dir, ignored = [], fileCount = 0) {
     try {
-        const files = await fs.readdir(dir);
+        const files = await readdir(dir);
         for (const file of files) {
-            const filePath = path.join(dir, file);
-            const stats = await fs.stat(filePath);
+            const filePath = join(dir, file);
+            const stats = await stat(filePath);
 
             if (stats.isDirectory()) {
                 if (
-                    !ignoredDirs.some((ignored) => filePath.startsWith(ignored))
+                    !ignored.some((ignoredItem) => {
+                        return (
+                            (ignoredItem.endsWith('/') &&
+                                filePath === ignoredItem.slice(0, -1)) || // Exact directory match when suffixed with /
+                            ignoredItem === filePath
+                        );
+                    })
                 ) {
-                    fileCount = await readFiles(
-                        filePath,
-                        { ignoredDirs, ignoredFiles },
-                        fileCount,
-                    );
+                    fileCount = await readFiles(filePath, ignored, fileCount);
                 }
             } else if (
-                !ignoredFiles.includes(path.basename(file)) &&
+                !ignored.some(
+                    (ignoredItem) =>
+                        ignoredItem === file || // Exact file match for non-directory items
+                        ignoredItem === filePath, // Exact path match for files or directories without trailing slash
+                ) &&
                 stats.size <= MAX_FILE_SIZE
             ) {
                 try {
-                    const content = await fs.readFile(filePath, 'utf-8');
+                    const content = await readFile(filePath, 'utf-8');
                     const fileData = `// File: ${filePath}\n${content}\n\n`;
                     await addToBundle(fileData);
                     fileCount++;
@@ -102,8 +103,12 @@ async function readFiles(
                 }
             } else {
                 const sizeKB = (stats.size / 1024).toFixed(2);
+                let reason =
+                    stats.size > MAX_FILE_SIZE
+                        ? `exceeds ${MAX_FILE_SIZE / 1024} KB. File size: ${sizeKB} KB`
+                        : 'is in the ignore list.';
                 colorLog(
-                    `Skipping file ${filePath} as it ${stats.size > MAX_FILE_SIZE ? `exceeds ${MAX_FILE_SIZE / 1024} KB. File size: ${sizeKB} KB` : 'is in the ignore list.'}`,
+                    `Skipping file ${filePath} as it ${reason}`,
                     colors.yellow,
                 );
             }
@@ -140,9 +145,9 @@ async function writeBundle(bundle) {
     bundleCount++;
     const outputPath =
         process.env.OUTPUT_PATH ||
-        path.join(__dirname, `bundled_codebase_${bundleCount}.txt`);
+        join(process.cwd(), `bundled_codebase_${bundleCount}.txt`); // Write to current working directory
     try {
-        await fs.writeFile(outputPath, bundle.join(''), 'utf-8');
+        await writeFile(outputPath, bundle.join(''), 'utf-8');
         totalCharacters += addToBundle.currentChars;
         addToBundle.currentBundle = [];
         addToBundle.currentChars = 0;
@@ -155,14 +160,9 @@ async function writeBundle(bundle) {
 /**
  * Processes the given directory, collecting file contents into one or more bundled files.
  * @param {string} directoryPath - The path to the directory to scan.
- * @param {Object} [options={}] - Options for ignoring directories and files.
- * @param {Array<string>} [options.ignoredDirs] - Array of directory paths to ignore.
- * @param {Array<string>} [options.ignoredFiles] - Array of file names to ignore.
+ * @param {Array<string>} [ignored=[]] - Items to ignore.
  */
-async function processDirectory(
-    directoryPath,
-    { ignoredDirs = [], ignoredFiles = [] } = {},
-) {
+async function processDirectory(directoryPath, ignored = []) {
     const confirmed = await confirmAction(
         `Are you sure you want to scan ${directoryPath}? (y/n) `,
     );
@@ -171,15 +171,12 @@ async function processDirectory(
         return;
     }
 
-    const finalCount = await readFiles(directoryPath, {
-        ignoredDirs: ignoredDirs.map((dir) => path.join(directoryPath, dir)),
-        ignoredFiles,
-    });
+    const finalCount = await readFiles(directoryPath, ignored);
     if (addToBundle.currentBundle?.length)
         await writeBundle(addToBundle.currentBundle);
 
     colorLog(`Total number of files processed: ${finalCount}`, colors.green);
-    colorLog(`Bundles written to directory: ${__dirname}`, colors.cyan);
+    colorLog(`Bundles written to directory: ${process.cwd()}`, colors.cyan); // Use current working directory for output location
     colorLog(`Total number of bundles written: ${bundleCount}`, colors.green);
     colorLog(
         `Total characters written across all bundles: ${totalCharacters}`,
@@ -191,23 +188,27 @@ async function processDirectory(
     );
 }
 
-if (require.main === module) {
+// Main execution block for the script
+if (import.meta.url.startsWith('file:')) {
     (async () => {
-        const [directoryToScan, ...args] = process.argv.slice(2);
-        const [ignoredDirs, filesToIgnore] = [
-            args.slice(0, -3),
-            args.slice(-3),
-        ];
+        const args = process.argv.slice(2);
+        if (args.length < 1) {
+            colorLog(
+                'Usage: node cbfg.js <directoryToScan> [ignoredItems...]',
+                colors.yellow,
+            );
+            process.exit(1);
+        }
+
+        const directoryToScan = args[0];
+        const ignored = args.slice(1);
 
         try {
-            await fs.access(directoryToScan || './');
-            await processDirectory(directoryToScan || './', {
-                ignoredDirs,
-                ignoredFiles: filesToIgnore,
-            });
+            await access(directoryToScan);
+            await processDirectory(directoryToScan, ignored);
         } catch {
             colorLog(
-                'The specified directory does not exist or cannot be accessed.',
+                `The specified directory ${directoryToScan} does not exist or cannot be accessed.`,
                 colors.red,
             );
             process.exit(1);

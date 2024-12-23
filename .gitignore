@@ -1,1 +1,11 @@
 node_modules/
+# Node.js build artifacts
+/bundled_codebase_*.txt
+
+# macOS system files
+.DS_Store
+
+# Other common temporary or metadata files
+*.tmp
+*.swp
+*.swo

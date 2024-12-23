@@ -1,6 +1,21 @@
+# Node.js build artifacts
+bundled_codebase_*.txt
+
+# macOS system files
+.DS_Store
+
+# Other common temporary or metadata files
+*.tmp
+*.swp
+*.swo
+
+# Node.js specific
 node_modules/
+package-lock.json
+
+# If not needed in the published package
+.eslintrc.js
+.prettierrc
 .husky/
 .git/
-.github/
 .vscode/
-*.log

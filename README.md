@@ -1,55 +1,63 @@
-**Codebase Bundler for Grok (CBFG) User Documentation**
+# Codebase Bundler for Grok (CBFG)
 
-**Purpose:**
-This script bundles all files from a specified directory into one or more text files for sharing with Grok 2 AI. It's designed for consolidating codebases for review or analysis while respecting system limitations.
+A script to bundle codebase files from a directory into bundle(s) to share with Grok 2 AI.
 
-**How to Use:**
+**Disclaimer:** "Codebase Bundler for Grok" is not officially affiliated with or endorsed by xAI, the creators of Grok AI. This project is an open-source tool designed to work with Grok AI but is independently developed and maintained.
 
-- **Run the Script:**
+## Purpose
 
-```
-node cbfg.js [directory] [ignored_dirs...] [ignored_files...]
-```
+This script is designed to consolidate all files from a specified directory into one or more text files. This bundling process is useful for sharing entire codebases with Grok 2 AI for analysis or interaction.
 
-- **directory:** Path to the directory you want to bundle. Default is `./` if not specified.
-- **ignored_dirs:** Directories to skip (optional).
-- **ignored_files:** Specific files to skip (optional, last three arguments).
+## Usage
 
-**Example:**
+To use this script, run:
 
 ```
-node cbfg.js ./myProject node_modules test.js config.json
+node cbfg.js <directoryToScan> [ignoredItems...]
 ```
 
-This will bundle all files in `myProject` except those in `node_modules`, `test.js`, and `config.json`.
+- `<directoryToScan>`: The directory path you want to bundle. It can be relative or absolute.
+- [ignoredItems...]: Optional list of directories or files to ignore during the bundling process. 
+  - If an item ends with `/`, only the directory with that exact path is ignored.
+  - If no `/` is present, both files and directories matching the exact name or path will be ignored.
 
-**Features:**
+### Example
 
-- Ignores files or directories if specified.
-- Skips files over 100 KB due to per-file size limit.
-- **Creates multiple bundles if necessary to avoid hitting Grok's hard limits** on character count, with each bundle capped at 100,000 characters.
+To bundle all files in `myProject` except those in `node_modules` and `config.json`:
 
-**Output:**
+```
+node cbfg.js ./myProject node_modules/ config.json
+```
 
-- Files named `bundled_codebase_1.txt`, `bundled_codebase_2.txt`, etc., are created in the script's directory, each containing bundled content up to the character limit.
+## Features
 
-**Using the Output:**
+- **Character Cap & Multiple Bundles**: This script intelligently creates new bundles if necessary to respect Grok's input limits, ensuring no single bundle exceeds 100,000 characters. This is crucial for maintaining system performance and usability when interacting with Grok AI.
+- **Ignore Specific Items**: You can specify directories or files to skip during bundling.
+- **File Size Limit**: Skips files larger than 100 KB to avoid processing overly large files.
 
-- **After the bundle files are generated, inform Grok that you will be posting an entire codebase and that Grok should only respond in full when you say you are finished with the code share.**
-- Then, **manually copy and paste each bundle's content into the prompt of Grok AI** for analysis and interaction.
-- **Remember, it's your responsibility to stay within sensible boundaries and not to abuse Grok's prompt system** by posting excessively large amounts of code at once or in too many parts.
+## Output
 
-**Notes:**
+- Bundled files are generated in the directory where the script is run, named `bundled_codebase_1.txt`, `bundled_codebase_2.txt`, etc.
+- Each file contains the content of multiple original files, respecting size and character limits.
 
-- Ensure you have **Node.js 14.x or higher** installed to run this script
-- Be cautious with large directories as it might take time to process.
-- Files larger than 100 KB or exceeding the total character limit will be handled by creating additional bundles.
+## Using the Output
 
-**Feedback & Contributions:**
+After the bundle files are generated:
+1. **Inform Grok** that you will be posting an entire codebase and that Grok should only respond in full when you say you are finished with the code share.
+2. **Manually copy and paste** each bundle's content into the prompt of Grok AI for analysis and interaction.
 
-- If you have any issues or suggestions, please open an issue or contribute via pull requests on GitHub.
-- Consider sharing on npm for broader accessibility if open-sourced.
+**Remember:** It's your responsibility to stay within sensible boundaries and not to abuse Grok's prompt system by posting excessively large amounts of code at once or in too many parts.
 
-**Important Note:**
+## Notes
+
+- Ensure you have Node.js 14.x or higher installed to run this script.
+- Be cautious with large directories as processing might take some time.
+- This script does not split files across bundles; each file is included in its entirety in one bundle.
+
+## Important Note
 
 - This content is partially AI-generated.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
