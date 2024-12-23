@@ -1,6 +1,6 @@
 {
   "name": "cbfg",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A script to bundle codebase files for sharing with Grok AI",
   "main": "cbfg.js",
   "bin": {
