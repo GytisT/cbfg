@@ -6,6 +6,14 @@
   "bin": {
     "cbfg": "./cbfg.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GytisT/cbfg.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GytisT/cbfg/issues"
+  },
+  "homepage": "https://github.com/GytisT/cbfg#readme",
   "type": "module",
   "scripts": {
     "prepublishOnly": "npm run lint",
