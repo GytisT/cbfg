@@ -1,0 +1,38 @@
+{
+  "name": "cbfg",
+  "version": "1.0.0",
+  "description": "A script to bundle codebase files for sharing with Grok AI",
+  "main": "cbfg.js",
+  "type": "module",
+  "scripts": {
+    "prepublishOnly": "npm run lint",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "keywords": [
+    "grok",
+    "codebase",
+    "bundler",
+    "javascript"
+  ],
+  "author": "Gytis Tamulynas",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.11",
+    "prettier": "^3.4.2"
+  }
+}
