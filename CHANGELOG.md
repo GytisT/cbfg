@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2024-12-22
+
+### Changed
+- Fixed an error where private variables were incorrectly accessed outside of their closure in `addToBundle`.
+- Simplified the codebase while maintaining functionality.
+- Improved the handling of ignored directories and files.
+
+### Fixed
+- Correct use of closures for private state management in bundle creation.
+
+## [1.0.1] - 2024-12-22
+
+### Fixed
+- Added missing changelog entry for 1.0.1 release.
+- This minor update adds a backlink from the npm package to the GitHub repository in `package.json`. No changes to the functionality of CBFG.
+
 ## [1.0.0] - 2024-12-22
 
 ### Added
@@ -18,17 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint and Prettier setup for code quality and formatting consistency.
 - Husky for Git hooks to enforce code standards before committing or pushing.
 
-### Changed
-- None
-
-### Fixed
-- None
-
-### Removed
-- None
-
-### Security
-- None
-
-[Unreleased]: https://github.com/GytisT/cbfg/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/GytisT/cbfg/releases/tag/v1.0.0
+[Unreleased]: https://github.com/your-username/cbfg/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/your-username/cbfg/releases/tag/v1.0.2
+[1.0.1]: https://github.com/your-username/cbfg/releases/tag/v1.0.1
+[1.0.0]: https://github.com/your-username/cbfg/releases/tag/v1.0.0
