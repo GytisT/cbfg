@@ -6,7 +6,7 @@
  */
 
 import { readFile, readdir, stat, writeFile, access } from 'node:fs/promises';
-import { join, basename } from 'node:path';
+import { join, basename, sep } from 'node:path';
 import { createInterface } from 'node:readline';
 
 // ANSI Colors
@@ -124,29 +124,63 @@ const readFiles = async (dir, ignored = [], rootDir) => {
             const stats = await stat(filePath);
 
             if (stats.isDirectory()) {
-                // Check if the directory should be ignored based on full path from rootDir
+                // Use the whole path for directory checks
+                const relativePath = filePath;
                 if (
-                    !ignored.some((ignoredItem) =>
-                        filePath.startsWith(
-                            join(rootDir, ignoredItem.replace(/\/$/, '')),
-                        ),
-                    )
+                    !ignored.some((ignoredItem) => {
+                        const normalizedItem = ignoredItem.replace(/\/$/, '');
+                        const segments = relativePath.split(sep);
+                        return segments.some(
+                            (segment) =>
+                                segment === normalizedItem ||
+                                segment === basename(normalizedItem),
+                        );
+                    })
                 ) {
                     fileCount += await readFiles(filePath, ignored, rootDir);
                 }
             } else if (
                 stats.size <= MAX_FILE_SIZE &&
-                !ignored.some(
-                    (ignoredItem) =>
-                        basename(filePath) === ignoredItem &&
-                        !ignoredItem.includes('/'),
-                )
+                !ignored.some((ignoredItem) => {
+                    // Check for an exact file match or if the filename alone is listed in ignored
+                    const fileName = basename(filePath);
+                    return (
+                        fileName === ignoredItem ||
+                        filePath === ignoredItem ||
+                        (ignoredItem.includes('/') &&
+                            filePath.startsWith(ignoredItem))
+                    );
+                })
             ) {
-                const content = await readFile(filePath, 'utf-8');
-                await addToBundle.add(filePath, content);
-                fileCount++;
-                if (fileCount % LOG_EVERY_N_FILES === 0)
-                    colorLog(`Processed ${fileCount} files...`, colors.green);
+                try {
+                    // Attempt to read the file as UTF-8. If successful, add it to the bundle.
+                    const content = await readFile(filePath, 'utf-8');
+                    await addToBundle.add(filePath, content);
+                    fileCount++;
+                    if (fileCount % LOG_EVERY_N_FILES === 0)
+                        colorLog(
+                            `Processed ${fileCount} files...`,
+                            colors.green,
+                        );
+                } catch (error) {
+                    // If reading as UTF-8 fails, skip this file
+                    if (
+                        error instanceof Error &&
+                        error.name === 'RangeError' &&
+                        error.message.includes('Invalid UTF-8')
+                    ) {
+                        colorLog(
+                            `Skipping file ${filePath} as it is not UTF-8 compatible: ${error.message}`,
+                            colors.yellow,
+                        );
+                    } else {
+                        // Log any other error
+                        colorLog(
+                            `Error reading file ${filePath}: ${error.message}`,
+                            colors.red,
+                        );
+                    }
+                }
             } else {
                 const sizeKB = (stats.size / 1024).toFixed(2);
                 const reason =
