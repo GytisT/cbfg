@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2024-12-24
+
+### Changed
+- Refined ignore logic to handle both path and name-based ignoring more accurately.
+- Explicitly handle and log errors for files not compatible with UTF-8 reading.
+
 ## [1.0.2] - 2024-12-22
 
 ### Changed
@@ -34,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint and Prettier setup for code quality and formatting consistency.
 - Husky for Git hooks to enforce code standards before committing or pushing.
 
-[Unreleased]: https://github.com/your-username/cbfg/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/your-username/cbfg/releases/tag/v1.0.2
-[1.0.1]: https://github.com/your-username/cbfg/releases/tag/v1.0.1
-[1.0.0]: https://github.com/your-username/cbfg/releases/tag/v1.0.0
+[Unreleased]: https://github.com/GytisT/cbfg/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/GytisT/cbfg/releases/tag/v1.0.3
+[1.0.2]: https://github.com/GytisT/cbfg/releases/tag/v1.0.2
+[1.0.1]: https://github.com/GytisT/cbfg/releases/tag/v1.0.1
+[1.0.0]: https://github.com/GytisT/cbfg/releases/tag/v1.0.0
